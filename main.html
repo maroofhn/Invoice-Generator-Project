@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice Generator System</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <!-- Main 3 Divs -->
+    <div class="parent">
+        <div class="div1">
+            <h1 class="headingone">Items Management</h1>
+            <div class="input-container">
+                <input type="text" id="itemName" class="inputstyle" placeholder="Item Name">
+                <input type="text" id="itemCode" class="inputstyle" placeholder="Code">
+                <input type="number" id="itemPrice" step="0.1" class="inputstyle" placeholder="Price">
+                <input type="number" id="itemVAT" step="0.1" class="inputstyle" placeholder="VAT%">
+                <button class="addbutton">Add Item</button>
+            </div>
+
+            <div class="items-sub">
+                <div id="INameDiv" style="background-color: #eaeaea;">
+                    <h4>Name</h4>
+                </div>
+                <div id="ICodeDiv">
+                    <h4>Code</h4>
+                </div>
+                <div id="IPriceDiv" style="background-color: #eaeaea;">
+                    <h4>Price</h4>
+                </div>
+                <div id="IVATDiv">
+                    <h4>VAT</h4>
+                </div>
+            </div>
+        </div>
+
+    <div class="div2">
+        <h1 class="headingone">Customer Management</h1> 
+        <div class="input-container"> 
+            <input type="text" id="customerName" class="inputstyle" placeholder="Customer Name"> 
+            <input type="text" id="customerAddress" class="inputstyle" placeholder="Address"> 
+            <input type="text" id="customerVAT" class="inputstyle" placeholder="VAT Registration"> 
+            <button class="addbutton2">Add Customer</button> 
+        </div> 
+        <div class="items-sub2"> 
+            <div id="CNameDiv" style="background-color: #eaeaea;"> 
+                <h4>Name</h4> 
+            </div> 
+            
+            <div id="CAddrDiv"> 
+                <h4>Address</h4> 
+            </div> 
+            <div id="CVATDiv" style="background-color: #eaeaea;"> 
+                <h4>VAT Registration</h4> 
+            </div> 
+        </div> 
+    </div>
+
+
+    <!-- Invoice Generator Section -->
+    <div class="div3">
+        <h1 class="headingone">Invoice Generator</h1>
+
+        <!-- Customer Dropdown -->
+        <label for="CustomerDD" style="font-family: SF Pro Display;">Assigned to: </label>
+        <select id="CustomerDD">
+            <option>-</option>
+        </select>
+
+        <!-- VAT Registration Display -->
+        <p style="font-family: SF Pro Display;" id="VATReg">VAT Registration: </p>
+
+        <!-- Item Selection -->
+        <label for="itemDropdown" style="font-family: SF Pro Display;">Select Item: </label>
+        <select id="itemDropdown">
+            <option>-</option>
+        </select>
+
+        <!-- Quantity Input -->
+        <label for="itemQuantity" style="font-family: SF Pro Display; height: 4;">Quantity: </label>
+        <input type="number" id="itemQuantity" value="1" min="1" />
+        
+        <!-- Add Item Button -->
+        <button id="addItemToInvoice" class="addbutton2">Add Item to Invoice</button>
+        
+        <br><br>
+
+        <!--Discount Adder-->
+        <label for="totalDiscount" style="font-family: SF Pro Display; height: 4;">Discount (%):  </label>
+        <input type="number" id="discount" value="1" min="1" />
+
+        <br><br>
+
+        <!-- VAT Options (Radio buttons for VAT inclusive, exclusive, or none) -->
+        <label for="vatOption">VAT Option: </label>
+        <input type="radio" id="vatInclusive" name="vatOption" value="inclusive" checked> VAT Inclusive
+        <input type="radio" id="vatExclusive" name="vatOption" value="exclusive"> VAT Exclusive
+        <input type="radio" id="vatNone" name="vatOption" value="none"> No VAT
+
+        <br><br>
+        <!-- Comments Section -->
+        <input type="text" class="inputstyle2" placeholder="Add any comments"></input>
+
+        <br><br><br>
+        <hr>
+        <!-- Invoice Table -->
+        <table id="invoiceTable" class="maintable">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Price (SAR)</th>
+                    <th>Quantity</th>
+                    <th>Subtotal (SAR)</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <hr>
+        <!-- Total and VAT Display -->
+        <div style="margin-top: 15px; text-align: right; padding-right: 450px;">
+            <p style="font-size: 16px; font-family: SF Pro Display;">Total: <span id="totalPrice">0</span> SAR</p>
+            <p style="font-size: 16px; font-family: SF Pro Display;">Discount: <span id="totalPrice">0</span> SAR</p>
+            <p style="font-size: 16px; font-family: SF Pro Display;">Grand Total <span id="totalPrice">0</span> SAR</p>
+            <p style="font-size: 16px; font-family: SF Pro Display;">VAT (15%): <span id="totalVAT">0</span> SAR</p>
+        </div>
+    </div>
+
+
+        </div>
+    </div>
+
+
+    <script src="backend.js"></script>
+    </body>
+</html>
