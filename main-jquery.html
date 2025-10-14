@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Invoice Generator System</title>
+
+    <!--Linking CSS File-->
+    <link rel="stylesheet" href="styles.css">
+
+    <!--Linking JSQuery + JS File-->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+</head>
+<body>
+    <!-- Main 3 Divs -->
+    <div class="parent">
+        <div class="div1">
+            <h1 class="headingone">Items Management</h1>
+            <div class="input-container">
+                <input type="text" id="itemName" class="inputstyle" placeholder="Item Name">
+                <input type="text" id="itemCode" class="inputstyle" placeholder="Code">
+                <input type="number" id="itemPrice" step="0.1" class="inputstyle" placeholder="Price">
+                <input type="number" id="itemVAT" step="0.1" class="inputstyle" placeholder="VAT%">
+                <button class="addbutton">Add Item</button>
+            </div>
+
+            <div class="items-sub">
+                <div id="INameDiv" style="background-color: #eaeaea;">
+                    <h4>Name</h4>
+                </div>
+                <div id="ICodeDiv">
+                    <h4>Code</h4>
+                </div>
+                <div id="IPriceDiv" style="background-color: #eaeaea;">
+                    <h4>Price</h4>
+                </div>
+                <div id="IVATDiv">
+                    <h4>VAT</h4>
+                </div>
+            </div>
+        </div>
+
+    <div class="div2">
+        <h1 class="headingone">Customer Management</h1> 
+        <div class="input-container"> 
+            <input type="text" id="customerName" class="inputstyle" placeholder="Customer Name"> 
+            <input type="text" id="customerAddress" class="inputstyle" placeholder="Address"> 
+            <input type="text" id="customerVAT" class="inputstyle" placeholder="VAT Registration"> 
+            <button class="addbutton2">Add Customer</button> 
+        </div> 
+        <div class="items-sub2"> 
+            <div id="CNameDiv" style="background-color: #eaeaea;"> 
+                <h4>Name</h4> 
+            </div> 
+            
+            <div id="CAddrDiv"> 
+                <h4>Address</h4> 
+            </div> 
+            <div id="CVATDiv" style="background-color: #eaeaea;"> 
+                <h4>VAT Registration</h4> 
+            </div> 
+        </div> 
+    </div>
+
+
+    <!-- Invoice Generator Section -->
+    <div class="div3">
+        <h1 class="headingone">Invoice Generator</h1>
+
+        <!-- Customer Dropdown -->
+        <label for="CustomerDD" style="font-family: SF Pro Display;">Assigned to: </label>
+        <select id="CustomerDD">
+            <option>-</option>
+        </select>
+
+        <!-- VAT Registration Display -->
+        <p style="font-family: SF Pro Display;" id="VATReg">VAT Registration: </p>
+
+        <!-- Item Selection -->
+        <label for="itemDropdown" style="font-family: SF Pro Display;">Select Item: </label>
+        <select id="itemDropdown">
+            <option>-</option>
+        </select>
+
+        <!-- Quantity Input -->
+        <label for="itemQuantity" style="font-family: SF Pro Display; height: 4;">Quantity: </label>
+        <input type="number" id="itemQuantity" value="1" min="1" />
+        
+        <!-- Add Item Button -->
+        <button id="addItemToInvoice" class="addbutton2">Add Item to Invoice</button>
+        
+        <br><br>
+
+        <!--Discount Adder-->
+        <label for="totalDiscount" style="font-family: SF Pro Display; height: 4;">Discount (%):  </label>
+        <input type="number" id="discount" value="0" min="0" />
+
+        <br><br>
+
+        <!-- VAT Options (Radio buttons for VAT inclusive, exclusive, or none) -->
+        <label for="vatOption">VAT Option: </label>
+        <input type="radio" id="vatInclusive" name="vatOption" value="inclusive" checked> VAT Inclusive
+        <input type="radio" id="vatExclusive" name="vatOption" value="exclusive"> VAT Exclusive
+        <input type="radio" id="vatNone" name="vatOption" value="none"> No VAT
+
+        <br><br>
+        <!-- Comments Section -->
+        <input type="text" class="inputstyle2" placeholder="Add any comments"></input>
+
+        <br><br><br>
+        <hr>
+        <!-- Invoice Table -->
+        <table id="invoiceTable" class="maintable">
+            <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Price (SAR)</th>
+                    <th>Quantity</th>
+                    <th>Subtotal (SAR)</th>
+                </tr>
+            </thead>
+            <tbody>
+            </tbody>
+        </table>
+
+        <hr>
+        <!-- Total and VAT Display -->
+        <div style="margin-top: 15px; text-align: right; padding-right: 450px;">
+            <p style="font-size: 16px; font-family: SF Pro Display;">Total: <span id="totalPrice">0</span> SAR</p>
+            <p style="font-size: 16px; font-family: SF Pro Display;">Discount: <span id="totalDiscount">0</span> SAR</p>
+            <p style="font-size: 16px; font-family: SF Pro Display;">VAT (15%): <span id="totalVAT">0</span> SAR</p>
+        </div>
+    </div>
+
+
+        </div>
+    </div>
+
+    <script>
+        // Declare Item Object
+        const item = {
+            name: "",
+            code: "",
+            price: 0,
+            vat: 0
+        };
+
+        // Declare Item Array
+        const itemArray = [];
+
+        // Add Item to the array and update the Item Management section
+        $(".addbutton").click(function() {
+            item.name = $("#itemName").val();
+            item.code = $("#itemCode").val();
+            item.price = parseFloat($("#itemPrice").val()) || 0;
+            item.vat = parseFloat($("#itemVAT").val()) || 0;
+
+            // Push the item object into the array
+            itemArray.push({ ...item });
+
+            // Log and Alert
+            console.log(item);
+            console.log(itemArray);
+            alert(`${item.name} with code ${item.code} and price of SAR ${item.price} has been added.`);
+
+            // Reset item object
+            item.name = "";
+            item.code = "";
+            item.price = 0;
+            item.vat = 0;
+
+            // Update the Item Management section
+            updateItemDivs();
+            updateItemDropdown();
+        });
+
+        // Update the Item Management Divs
+        function updateItemDivs() {
+            $("#INameDiv").html("<h4>Name</h4>");
+            $("#ICodeDiv").html("<h4>Code</h4>");
+            $("#IPriceDiv").html("<h4>Price</h4>");
+            $("#IVATDiv").html("<h4>VAT</h4>");
+
+            // Loop through and display items
+            itemArray.forEach(item => {
+                $("#INameDiv").append(`<p>${item.name}</p>`);
+                $("#ICodeDiv").append(`<p>${item.code}</p>`);
+                $("#IPriceDiv").append(`<p>${item.price}</p>`);
+                $("#IVATDiv").append(`<p>${item.vat}</p>`);
+            });
+        }
+
+        // Update the dropdown with all the items
+        function updateItemDropdown() {
+            const itemDropdown = $("#itemDropdown");
+            itemDropdown.html("<option>-</option>"); // Reset the dropdown
+
+            itemArray.forEach(item => {
+                itemDropdown.append(`<option value="${item.name}">${item.name}</option>`);
+            });
+        }
+
+        // -------------------------- Customer Section --------------------------
+
+        // Declare Customer Object
+        const customer = {
+            name: "",
+            address: "",
+            vatreg: ""
+        };
+
+        const customerArray = [];
+
+        // Add Customer to the array and update the Customer Management section
+        $(".addbutton2").click(function() {
+            customer.name = $("#customerName").val();
+            customer.address = $("#customerAddress").val();
+            customer.vatreg = $("#customerVAT").val();
+
+            // Push the customer object into the array
+            customerArray.push({ ...customer });
+
+            // Log and Alert
+            console.log(customer);
+            console.log(customerArray);
+            alert(`${customer.name} with VAT Registration Number of ${customer.vatreg} has been added.`);
+
+            // Reset customer object
+            customer.name = "";
+            customer.address = "";
+            customer.vatreg = "";
+
+            updateItemDivs2();
+            updateCustomerDropdown();
+        });
+
+        // Update the Customer Management Divs
+        function updateItemDivs2() {
+            $("#CNameDiv").html("<h4>Name</h4>");
+            $("#CAddrDiv").html("<h4>Address</h4>");
+            $("#CVATDiv").html("<h4>VAT Registration</h4>");
+
+            customerArray.forEach(customer => {
+                $("#CNameDiv").append(`<p>${customer.name}</p>`);
+                $("#CAddrDiv").append(`<p>${customer.address}</p>`);
+                $("#CVATDiv").append(`<p>${customer.vatreg}</p>`);
+            });
+        }
+
+        // Update the Customer Dropdown for invoice selection
+        function updateCustomerDropdown() {
+            const customerDropdown = $("#CustomerDD");
+            customerDropdown.html("<option>-</option>"); // Reset the dropdown
+
+            customerArray.forEach(customer => {
+                customerDropdown.append(`<option value="${customer.name}">${customer.name}</option>`);
+            });
+        }
+
+        // -------------------- Invoice Section --------------------
+
+        // When the "Add Item to Invoice" button is clicked
+        $("#addItemToInvoice").click(function() {
+            const selectedItemName = $("#itemDropdown").val();
+            const selectedQuantity = parseInt($("#itemQuantity").val()) || 1;
+
+            // If the item name is not selected, alert user.
+            if (selectedItemName === "-") {
+                alert("Please select an item.");
+                return;
+            }
+
+            // Find the selected item from the array
+            const selectedItem = itemArray.find(item => item.name === selectedItemName);
+
+            if (selectedItem) {
+                addItemToInvoice(selectedItem, selectedQuantity);
+                updateInvoiceTotals();
+            } else {
+                alert("Item not found.");
+            }
+        });
+
+        // Add item to the invoice table
+        function addItemToInvoice(item, quantity) {
+            const tbody = $("#invoiceTable tbody");
+            const row = $("<tr></tr>");
+
+            // Item Name
+            const nameCell = $("<td></td>").text(item.name);
+            row.append(nameCell);
+
+            // Price
+            const priceCell = $("<td></td>").text(item.price.toFixed(2));
+            row.append(priceCell);
+
+            // Quantity input
+            const qtyCell = $("<td></td>");
+            const qtyInput = $("<input>").attr({
+                type: "number",
+                value: quantity,
+                min: 1,
+                style: "width: 60px",
+                onchange: "updateSubtotal(this)"
+            });
+            qtyCell.append(qtyInput);
+            row.append(qtyCell);
+
+            // Subtotal
+            const subtotalCell = $("<td></td>").text((item.price * quantity).toFixed(2));
+            row.append(subtotalCell);
+
+            tbody.append(row);
+        }
+
+        // Update Subtotal for the item rows
+        function updateSubtotal() {
+            const rows = $("#invoiceTable tbody tr"); 
+            let total = 0;
+
+            // Loop through each row to update the subtotal
+            rows.each(function() {
+                const qtyInput = $(this).find("input");  
+                const qty = parseInt(qtyInput.val()) || 0;  
+                const price = parseFloat($(this).children().eq(1).text());  
+                const subtotal = qty * price;  
+                $(this).children().eq(3).text(subtotal.toFixed(2));  
+
+                total += subtotal; 
+            });
+
+            updateInvoiceTotals(total);  
+        }
+
+        // Calculate total and VAT
+        function updateInvoiceTotals() {
+            let total = 0; // Start with 0 total
+
+            // Loop through all rows in the invoice table to sum the subtotals
+            const tbody = $("#invoiceTable tbody");
+            tbody.find("tr").each(function() {
+                const subtotal = parseFloat($(this).children().eq(3).text()) || 0;
+                total += subtotal; // Add each item's subtotal to the total
+            });
+
+            // Get the selected VAT option
+            const vatOption = $("input[name='vatOption']:checked").val();
+            let vat = 0;
+
+            // Calculate VAT based on the selected option
+            if (vatOption === "exclusive") {
+                vat = total * 0.15;
+                total += vat; // Add VAT to the total if exclusive
+            } else if (vatOption === "none") {
+                vat = total * 0.15 / 1.15; // Remove VAT from the total if no VAT
+                total -= vat;
+            } else if (vatOption === "inclusive") {
+                vat = total * 0.15 / 1.15; // Calculate VAT included in the price
+            }
+
+            // Calculate Discount based on user input
+            const discountPercentage = parseFloat($("#discount").val()) || 0;
+            const discountAmount = (total * discountPercentage) / 100;
+            total -= discountAmount; // Subtract the discount from the total
+
+            // Update the discount and total displayed on the page
+            $("#totalDiscount").text(discountAmount.toFixed(2));
+
+            // Update the total and VAT displayed on the page
+            $("#totalPrice").text(total.toFixed(2));
+            $("#totalVAT").text(vat.toFixed(2));
+        }
+
+        // Listen for changes to the VAT option and update totals immediately
+        $("input[name='vatOption']").change(updateInvoiceTotals);
+
+        // Update the dropdown with available items
+        updateItemDropdown();
+
+    </script>
+
+    </body>
+</html>
