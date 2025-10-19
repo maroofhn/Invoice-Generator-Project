@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+    <head>
+
+    <title>Invoice Generator System (Vue)</title>
+    <link rel="stylesheet" href="styles.css" />
+
+    </head>
+
+    <body>
+        <div id="app">
+        <div class="parent">
+
+            <!-- Items Management -->
+            <div class="div1">
+            <h1 class="headingone">Items Management</h1>
+            <div class="input-container">
+                <input v-model="item.name" class="inputstyle" placeholder="Item Name">
+                <input v-model="item.code" class="inputstyle" placeholder="Code">
+                <input v-model.number="item.price" class="inputstyle" type="number" placeholder="Price">
+                <input v-model.number="item.vat" class="inputstyle" type="number" placeholder="VAT%">
+                <button class="addbutton" v-on:click="addItem">Add Item</button>
+            </div>
+
+            <div class="items-sub">
+                <div><h4>Name</h4><p v-for="i in items" :key="i.code">{{ i.name }}</p></div>
+                <div><h4>Code</h4><p v-for="i in items" :key="i.code + 'c'">{{ i.code }}</p></div>
+                <div><h4>Price</h4><p v-for="i in items" :key="i.code + 'p'">{{ i.price }}</p></div>
+                <div><h4>VAT</h4><p v-for="i in items" :key="i.code + 'v'">{{ i.vat }}</p></div>
+            </div>
+            </div>
+
+            <!-- Customer Management -->
+            <div class="div2">
+            <h1 class="headingone">Customer Management</h1>
+            <div class="input-container">
+                <input v-model="customer.name" class="inputstyle" placeholder="Customer Name">
+                <input v-model="customer.address" class="inputstyle" placeholder="Address">
+                <input v-model="customer.vatreg" class="inputstyle" placeholder="VAT Registration">
+                <button class="addbutton2" v-on:click="addCustomer">Add Customer</button>
+            </div>
+
+            <div class="items-sub2">
+                <div><h4>Name</h4><p v-for="c in customers" :key="c.name">{{ c.name }}</p></div>
+                <div><h4>Address</h4><p v-for="c in customers" :key="c.name + 'a'">{{ c.address }}</p></div>
+                <div><h4>VAT</h4><p v-for="c in customers" :key="c.name + 'v'">{{ c.vatreg }}</p></div>
+            </div>
+            </div>
+
+            <!-- Invoice Section -->
+            <div class="div3">
+            <h1 class="headingone">Invoice Generator</h1>
+
+            <label>Assigned to:</label>
+            <select id="CustomerDD" v-model="selectedCustomer">
+                <option>-</option>
+                <option v-for="c in customers" :key="c.name">{{ c.name }}</option>
+            </select>
+
+            <p id="VATReg">VAT Registration:
+                <span v-if="selectedCustomerObj">{{ selectedCustomerObj.vatreg }}</span>
+                <span v-else>-</span>
+            </p>
+
+            <label>Select Item:</label>
+            <select id="itemDropdown" v-model="selectedItem">
+                <option>-</option>
+                <option v-for="i in items" :key="i.code">{{ i.name }}</option>
+            </select>
+
+            <label>Quantity:</label>
+            <input type="number" v-model.number="quantity" value="1" min="1" />
+
+            <button id="addItemToInvoice" class="addbutton2" v-on:click="addToInvoice">Add Item to Invoice</button>
+
+            <br><br>
+
+            <label>Discount (%):</label>
+            <input type="number" v-model.number="discount" value="0" min="0" />
+
+            <br><br>
+
+            <label>VAT Option:</label>
+            <input type="radio" id="vatInclusive" value="inclusive" v-model="vatOption"> VAT Inclusive
+            <input type="radio" id="vatExclusive" value="exclusive" v-model="vatOption"> VAT Exclusive
+            <input type="radio" id="vatNone" value="none" v-model="vatOption"> No VAT
+
+            <br><br><hr>
+
+            <table id="invoiceTable" class="maintable">
+                <thead>
+                <tr>
+                    <th>Item Name</th>
+                    <th>Price (SAR)</th>
+                    <th>Quantity</th>
+                    <th>Subtotal (SAR)</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr v-for="(inv, index) in invoice" :key="index">
+                    <td>{{ inv.name }}</td>
+                    <td>{{ inv.price.toFixed(2) }}</td>
+                    <td><input type="number" v-model.number="inv.qty" min="1" @input="updateTotals" /></td>
+                    <td>{{ (inv.price * inv.qty).toFixed(2) }}</td>
+                </tr>
+                </tbody>
+            </table>
+
+            <hr>
+            <div style="margin-top: 15px; text-align: right; padding-right: 450px;">
+                <p>Total: <span id="totalPrice">{{ total.toFixed(2) }}</span> SAR</p>
+                <p>Discount: <span id="totalDiscount">{{ discountAmount.toFixed(2) }}</span> SAR</p>
+                <p>VAT (15%): <span id="totalVAT">{{ vatAmount.toFixed(2) }}</span> SAR</p>
+            </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- Vue Script -->
+        <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+        <script>
+
+            // All Variables/Items/Constants
+            const app = Vue.createApp({
+            data() {
+                return {
+                item: { name: '', code: '', price: 0, vat: 0 },
+                items: [],
+                customer: { name: '', address: '', vatreg: '' },
+                customers: [],
+                selectedCustomer: '-',
+                selectedItem: '-',
+                quantity: 1,
+                discount: 0,
+                vatOption: 'inclusive',
+                invoice: [],
+                total: 0,
+                vatAmount: 0,
+                discountAmount: 0
+                }
+            },
+
+            // Computed Property
+            computed: {
+                selectedCustomerObj() {
+                return this.customers.find(c => c.name === this.selectedCustomer);
+                }
+            },
+            
+            // All methods to be used in program
+            methods: {
+                addItem() {
+                if (!this.item.name || !this.item.code) {
+                    alert("Please fill all fields.");
+                    return;
+                }
+                this.items.push({ ...this.item });
+                this.item = { name: '', code: '', price: 0, vat: 0 };
+                },
+                addCustomer() {
+                if (!this.customer.name) {
+                    alert("Enter customer name.");
+                    return;
+                }
+                this.customers.push({ ...this.customer });
+                this.customer = { name: '', address: '', vatreg: '' };
+                },
+                addToInvoice() {
+                if (this.selectedItem === '-') return alert("Select an item.");
+                const item = this.items.find(i => i.name === this.selectedItem);
+                if (!item) return alert("Item not found.");
+                this.invoice.push({ ...item, qty: this.quantity });
+                this.updateTotals();
+                },
+                updateTotals() {
+                let subtotal = this.invoice.reduce((sum, r) => sum + r.price * r.qty, 0);
+                let vat = 0;
+                if (this.vatOption === 'exclusive') {
+                    vat = subtotal * 0.15;
+                    subtotal += vat;
+                } else if (this.vatOption === 'inclusive') {
+                    vat = subtotal * 0.15 / 1.15;
+                }
+                const disc = (subtotal * this.discount) / 100;
+                subtotal -= disc;
+                this.total = subtotal;
+                this.vatAmount = vat;
+                this.discountAmount = disc;
+                }
+            },
+
+            // Watches for changes in values and performs set of actions accordingly.
+            watch: {
+                vatOption() { this.updateTotals(); },
+                discount() { this.updateTotals(); }
+            }
+            });
+            app.mount('#app');
+        </script>
+    </body>
+</html>
